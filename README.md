@@ -2,6 +2,15 @@
 
 A Flappy Bird clone built with Unity.
 
+## Screenshots
+
+![Title screen](GithubAssets/TitleScreen.png)
+![Game over screen](GithubAssets/GameOverScreen.png)
+
+## Gameplay
+
+[![Gameplay](GithubAssets/TitleScreen.png)](GithubAssets/Gameplay.mp4)
+
 ## How to play
 
 1. Extract `FloppyBird.zip`
