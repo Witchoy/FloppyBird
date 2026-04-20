@@ -1,32 +1,22 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    private const int ARGENT = 5;
-    private const int OR = 7;
     private const string HighScoreKey = "HighScore";
-    private const string ScoreKey = "Score";
     public static GameManager Instance;
+    
+    private int Score { get; set; }
+    public event Action<int> OnScoreChanged;
+    public event Action OnStartGame;
+    public event Action<int, int> OnGameOver;
 
-    private static bool _startOnLoad;
-
-    [SerializeField] private GameObject gameOverUI;
-    [SerializeField] private GameObject titleUI;
-    [SerializeField] private GameObject cardUI;
-    [SerializeField] private GameObject scoreUI;
 
     [SerializeField] private GameObject player;
-
     [SerializeField] private GameObject pipeSpawner;
     [SerializeField] private LoopGround ground;
-
-    [SerializeField] private GameObject medallionArgent;
-    [SerializeField] private GameObject medallionOr;
-    [SerializeField] private TextMeshProUGUI cardScoreText;
-    [SerializeField] private TextMeshProUGUI cardHighScoreText;
-
 
     private void Awake()
     {
@@ -40,33 +30,22 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        if (_startOnLoad)
-        {
-            _startOnLoad = false;
-            BeginGame();
-        }
-        else
-        {
-            ShowTitle();
-        }
+        AwakeGame();
     }
 
-    private void ShowTitle()
+    private void AwakeGame()
     {
-        gameOverUI.SetActive(false);
         player.SetActive(false);
         pipeSpawner.SetActive(false);
-        scoreUI.SetActive(false);
-        titleUI.SetActive(true);
 
         Time.timeScale = 0f;
     }
 
-    private void BeginGame()
+    public void StartGame()
     {
-        gameOverUI.SetActive(false);
-        titleUI.SetActive(false);
-        scoreUI.SetActive(true);
+        ClearGame();
+        OnStartGame?.Invoke();
+        
         player.SetActive(true);
         pipeSpawner.SetActive(true);
 
@@ -75,37 +54,52 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
     }
 
-    public void GameOver()
+    private void ClearGame()
     {
-        gameOverUI.SetActive(true);
+        Score = 0;
+        OnScoreChanged?.Invoke(Score);
+
+        player.transform.position = new Vector3(0f, 0.2f, 0f);
+        player.transform.rotation = Quaternion.identity;
+        var rb = player.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
+
+        foreach (var pipe in GameObject.FindGameObjectsWithTag("Pipe"))
+            Destroy(pipe);
+
         player.SetActive(false);
         pipeSpawner.SetActive(false);
-        scoreUI.SetActive(false);
-        cardUI.SetActive(true);
+        ground.StopMoving();
 
-        Score.SetCardScore();
-        cardScoreText.text = PlayerPrefs.GetInt(HighScoreKey).ToString();
-        cardHighScoreText.text = PlayerPrefs.GetInt(ScoreKey).ToString();
+        Time.timeScale = 0f;
+    }
 
-        if (Score.GetScore() >= ARGENT && Score.GetScore() < OR)
-        {
-            medallionArgent.SetActive(true);
-            medallionOr.SetActive(false);
-        }
-        else if (Score.GetScore() >= OR)
-        {
-            medallionOr.SetActive(true);
-            medallionArgent.SetActive(false);
-        }
+    public void GameOver()
+    {
+        int highScore = PlayerPrefs.GetInt(HighScoreKey);
+        
+        OnGameOver?.Invoke(Score, highScore);
+        
+        player.SetActive(false);
+        pipeSpawner.SetActive(false);
 
         ground.StopMoving();
 
         Time.timeScale = 0f;
     }
 
-    public void StartGame()
+    public void AddPoint()
     {
-        _startOnLoad = true;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        Score++;
+        
+        int highScore = PlayerPrefs.GetInt(HighScoreKey, 0);
+        if (Score > highScore)
+            PlayerPrefs.SetInt(HighScoreKey, Score);
+        
+        OnScoreChanged?.Invoke(Score);
     }
 }

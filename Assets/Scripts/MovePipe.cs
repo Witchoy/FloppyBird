@@ -7,10 +7,8 @@ public class MovePipe : MonoBehaviour
     private void Update()
     {
         transform.position += Vector3.left * (speed * Time.deltaTime);
-    }
 
-    private void OnBecameInvisible()
-    {
-        Destroy(gameObject);
+        if (transform.position.x < -20f)
+            Destroy(gameObject);
     }
 }
