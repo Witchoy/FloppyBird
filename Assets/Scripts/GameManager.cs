@@ -1,22 +1,18 @@
 using System;
-using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.Audio;
 
 public class GameManager : MonoBehaviour
 {
     private const string HighScoreKey = "HighScore";
     public static GameManager Instance;
-    
-    private int Score { get; set; }
-    public event Action<int> OnScoreChanged;
-    public event Action OnStartGame;
-    public event Action<int, int> OnGameOver;
 
 
     [SerializeField] private GameObject player;
     [SerializeField] private GameObject pipeSpawner;
     [SerializeField] private LoopGround ground;
+
+    private int Score { get; set; }
 
     private void Awake()
     {
@@ -33,6 +29,10 @@ public class GameManager : MonoBehaviour
         AwakeGame();
     }
 
+    public event Action<int> OnScoreChanged;
+    public event Action OnStartGame;
+    public event Action<int, int> OnGameOver;
+
     private void AwakeGame()
     {
         player.SetActive(false);
@@ -45,7 +45,7 @@ public class GameManager : MonoBehaviour
     {
         ClearGame();
         OnStartGame?.Invoke();
-        
+
         player.SetActive(true);
         pipeSpawner.SetActive(true);
 
@@ -68,9 +68,9 @@ public class GameManager : MonoBehaviour
             rb.angularVelocity = 0f;
         }
 
-        foreach (var pipe in GameObject.FindGameObjectsWithTag("Pipe"))
-            Destroy(pipe);
-
+        foreach (Transform pipe in pipeSpawner.transform)
+            Destroy(pipe.gameObject);
+        
         player.SetActive(false);
         pipeSpawner.SetActive(false);
         ground.StopMoving();
@@ -80,10 +80,10 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()
     {
-        int highScore = PlayerPrefs.GetInt(HighScoreKey);
-        
+        var highScore = PlayerPrefs.GetInt(HighScoreKey);
+
         OnGameOver?.Invoke(Score, highScore);
-        
+
         player.SetActive(false);
         pipeSpawner.SetActive(false);
 
@@ -95,11 +95,11 @@ public class GameManager : MonoBehaviour
     public void AddPoint()
     {
         Score++;
-        
-        int highScore = PlayerPrefs.GetInt(HighScoreKey, 0);
+
+        var highScore = PlayerPrefs.GetInt(HighScoreKey, 0);
         if (Score > highScore)
             PlayerPrefs.SetInt(HighScoreKey, Score);
-        
+
         OnScoreChanged?.Invoke(Score);
     }
 }

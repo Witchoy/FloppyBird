@@ -23,10 +23,16 @@ public class PipeSpawner : MonoBehaviour
         _timer += Time.deltaTime;
     }
 
+    private void OnEnable()
+    {
+        _timer = 0f;
+        SpawnPipe();
+    }
+
     private void SpawnPipe()
     {
         var position = transform.position + new Vector3(0, Random.Range(-heightRange, heightRange));
 
-        Instantiate(pipe, position, Quaternion.identity);
+        Instantiate(pipe, position, Quaternion.identity, transform);
     }
 }

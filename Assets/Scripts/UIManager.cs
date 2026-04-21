@@ -1,22 +1,20 @@
-using System;
 using TMPro;
 using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
-    
+    private const int ARGENT = 5;
+    private const int OR = 7;
+
     [SerializeField] private GameObject gameOverUI;
     [SerializeField] private GameObject titleUI;
     [SerializeField] private GameObject scoreUI;
-    
+
     [SerializeField] private GameObject medallionArgent;
     [SerializeField] private GameObject medallionOr;
     [SerializeField] private TMP_Text scoreText;
     [SerializeField] private TMP_Text cardScoreText;
     [SerializeField] private TMP_Text cardHighScoreText;
-    
-    private const int ARGENT = 5;
-    private const int OR = 7;
 
     private void Start()
     {
@@ -28,6 +26,7 @@ public class UIManager : MonoBehaviour
         GameManager.Instance.OnStartGame += StartGame;
         GameManager.Instance.OnGameOver += GameOver;
     }
+
     private void OnDisable()
     {
         if (GameManager.Instance == null) return;
@@ -54,7 +53,7 @@ public class UIManager : MonoBehaviour
     {
         Debug.Log("[UIManager] Game over");
         gameOverUI.SetActive(true);
-        
+
         cardScoreText.text = finalScore.ToString();
         cardHighScoreText.text = highScore.ToString();
 
@@ -73,6 +72,5 @@ public class UIManager : MonoBehaviour
             medallionArgent.SetActive(false);
             medallionOr.SetActive(false);
         }
-
     }
 }
