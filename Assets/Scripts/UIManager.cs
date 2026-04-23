@@ -53,6 +53,7 @@ public class UIManager : MonoBehaviour
     {
         Debug.Log("[UIManager] Game over");
         gameOverUI.SetActive(true);
+        scoreUI.SetActive(false);
 
         cardScoreText.text = finalScore.ToString();
         cardHighScoreText.text = highScore.ToString();

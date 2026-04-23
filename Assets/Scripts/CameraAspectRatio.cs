@@ -4,13 +4,29 @@ public class CameraAspectRatio : MonoBehaviour
 {
     private const float TargetAspect = 9f / 16f;
 
-    private void Start()
+    private Camera _cam;
+    private int _lastWidth;
+    private int _lastHeight;
+
+    private void Awake()
+    {
+        _cam = GetComponent<Camera>();
+    }
+
+    private void Update()
+    {
+        if (Screen.width == _lastWidth && Screen.height == _lastHeight) return;
+
+        _lastWidth = Screen.width;
+        _lastHeight = Screen.height;
+        ApplyAspect();
+    }
+
+    private void ApplyAspect()
     {
         var windowAspect = (float)Screen.width / Screen.height;
         var scaleWidth = windowAspect / TargetAspect;
-
-        var cam = GetComponent<Camera>();
-        var rect = cam.rect;
+        var rect = _cam.rect;
 
         if (scaleWidth < 1f)
         {
@@ -28,6 +44,6 @@ public class CameraAspectRatio : MonoBehaviour
             rect.y = 0f;
         }
 
-        cam.rect = rect;
+        _cam.rect = rect;
     }
 }
